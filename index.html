@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本筋思考言語化力チェック診断シート</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --paper: #f5f0e8;
+    --sepia: #8b6914;
+    --accent: #c0392b;
+    --muted: #6b5b4b;
+    --light: #e8e0d0;
+    --chart-fill: rgba(192, 57, 43, 0.15);
+    --chart-stroke: #c0392b;
+    --grid: rgba(139, 105, 20, 0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(139,105,20,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(192,57,43,0.04) 0%, transparent 60%);
+  }
+
+  .wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .header-rule {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--sepia), transparent);
+    margin: 14px 0;
+  }
+
+  .header-top {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 11px;
+    letter-spacing: 0.35em;
+    color: var(--sepia);
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    line-height: 1.4;
+    margin: 8px 0;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .corner-deco {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: var(--sepia);
+    border-style: solid;
+    opacity: 0.4;
+  }
+  .corner-deco.tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
+  .corner-deco.tr { top: 0; right: 0; border-width: 1px 1px 0 0; }
+  .corner-deco.bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+  .corner-deco.br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  @media (max-width: 600px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* ── Questions ── */
+  .questions { display: flex; flex-direction: column; gap: 20px; }
+
+  .q-card {
+    background: white;
+    border: 1px solid var(--light);
+    border-radius: 2px;
+    padding: 18px 20px;
+    position: relative;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .q-card:hover { border-color: var(--sepia); box-shadow: 0 2px 16px rgba(139,105,20,0.08); }
+
+  .q-num {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--sepia);
+    margin-bottom: 4px;
+  }
+
+  .q-label {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .q-desc {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin-bottom: 14px;
+    line-height: 1.7;
+  }
+
+  .rating-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .rating-label {
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+
+  .stars {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .star-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--light);
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 600;
+    position: relative;
+  }
+
+  .star-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.12); }
+  .star-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  .score-display {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--accent);
+    min-width: 28px;
+    text-align: right;
+  }
+
+  /* ── Chart ── */
+  .chart-panel {
+    position: sticky;
+    top: 20px;
+  }
+
+  .chart-box {
+    background: white;
+    border: 1px solid var(--light);
+    border-radius: 2px;
+    padding: 24px;
+  }
+
+  .chart-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--sepia);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  canvas {
+    display: block;
+    margin: 0 auto;
+    width: 100% !important;
+    max-width: 300px;
+  }
+
+  .total-score {
+    text-align: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--light);
+  }
+
+  .total-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+  }
+
+  .total-num {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1;
+    margin: 4px 0;
+  }
+
+  .total-denom {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'Shippori Mincho', serif;
+  }
+
+  .verdict {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    min-height: 18px;
+  }
+
+  .result-bar {
+    margin-top: 10px;
+    background: var(--light);
+    border-radius: 1px;
+    height: 4px;
+    overflow: hidden;
+  }
+  .result-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.6s cubic-bezier(0.23,1,0.32,1);
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 16px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 48px;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    opacity: 0.6;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .q-card { animation: fadeIn 0.45s ease both; }
+  .q-card:nth-child(1) { animation-delay: 0.05s; }
+  .q-card:nth-child(2) { animation-delay: 0.12s; }
+  .q-card:nth-child(3) { animation-delay: 0.19s; }
+  .q-card:nth-child(4) { animation-delay: 0.26s; }
+  .q-card:nth-child(5) { animation-delay: 0.33s; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="corner-deco tl"></div>
+    <div class="corner-deco tr"></div>
+    <div class="corner-deco bl"></div>
+    <div class="corner-deco br"></div>
+    <div class="header-top">Self Assessment Sheet</div>
+    <div class="header-rule"></div>
+    <h1>本筋思考言語化力<br>チェック診断シート</h1>
+    <div class="subtitle">各項目を１〜５で評価してください</div>
+    <div class="header-rule"></div>
+  </header>
+
+  <div class="layout">
+    <div class="questions" id="questions"></div>
+
+    <div class="chart-panel">
+      <div class="chart-box">
+        <div class="chart-title">DIAGNOSIS CHART</div>
+        <canvas id="radarChart" width="300" height="280"></canvas>
+
+        <div class="total-score">
+          <div class="total-label">TOTAL SCORE</div>
+          <div class="total-num" id="totalNum">0</div>
+          <div class="total-denom">/ 25</div>
+          <div class="result-bar"><div class="result-fill" id="resultFill" style="width:0%"></div></div>
+          <div class="verdict" id="verdict"></div>
+        </div>
+
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>本筋思考言語化力チェック診断シート &nbsp;·&nbsp; 5 Categories &nbsp;·&nbsp; 25pt Max</footer>
+</div>
+
+<script>
+const ITEMS = [
+  {
+    key: "value",
+    label: "価値観の言語化",
+    desc: "自分が大切にしていることを、人に伝わる言葉で的確に表現できる",
+    color: "#c0392b"
+  },
+  {
+    key: "action",
+    label: "行動の一貫性",
+    desc: "思考・発言・行動が一致しており、ブレなく実践に落とし込める",
+    color: "#e07b2a"
+  },
+  {
+    key: "purpose",
+    label: "目的の明確化",
+    desc: "「なぜやるのか」を深掘りし、本質的な目的を言葉にできる",
+    color: "#c0392b"
+  },
+  {
+    key: "structure",
+    label: "思考の構造化",
+    desc: "複雑な考えを整理し、筋道の通った形で言語化・説明できる",
+    color: "#8b6914"
+  },
+  {
+    key: "essence",
+    label: "本質の把握",
+    desc: "物事の表面ではなく、核心・本質を見抜いて言葉にする力",
+    color: "#2c7a6e"
+  }
+];
+
+const scores = { value: 0, action: 0, purpose: 0, structure: 0, essence: 0 };
+
+function getVerdict(total) {
+  if (total === 0)  return "";
+  if (total <= 8)   return "基礎を築く段階";
+  if (total <= 13)  return "認識が芽生えている";
+  if (total <= 18)  return "思考が言葉に宿りつつある";
+  if (total <= 22)  return "本筋思考が体に染みている";
+  return "言語化の達人";
+}
+
+// Build questions
+const qContainer = document.getElementById("questions");
+ITEMS.forEach((item, i) => {
+  const card = document.createElement("div");
+  card.className = "q-card";
+  card.innerHTML = `
+    <div class="q-num">0${i+1} / 05</div>
+    <div class="q-label">${item.label}</div>
+    <div class="q-desc">${item.desc}</div>
+    <div class="rating-row">
+      <span class="rating-label">低</span>
+      <div class="stars" id="stars-${item.key}">
+        ${[1,2,3,4,5].map(n => `<button class="star-btn" data-key="${item.key}" data-val="${n}">${n}</button>`).join('')}
+      </div>
+      <span class="rating-label">高</span>
+      <div class="score-display" id="score-${item.key}">—</div>
+    </div>
+  `;
+  qContainer.appendChild(card);
+});
+
+document.querySelectorAll(".star-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.key;
+    const val = parseInt(btn.dataset.val);
+    scores[key] = val;
+    // Update buttons
+    document.querySelectorAll(`[data-key="${key}"]`).forEach(b => {
+      b.classList.toggle("active", parseInt(b.dataset.val) <= val);
+    });
+    document.getElementById(`score-${key}`).textContent = val;
+    updateChart();
+    updateTotal();
+  });
+});
+
+// Legend
+const legendEl = document.getElementById("legend");
+ITEMS.forEach(item => {
+  const div = document.createElement("div");
+  div.className = "legend-item";
+  div.innerHTML = `<span class="legend-dot"></span><span>${item.label}</span>`;
+  legendEl.appendChild(div);
+});
+
+// ── Radar Chart ──
+const canvas = document.getElementById("radarChart");
+const ctx = canvas.getContext("2d");
+const N = 5;
+const CX = 150, CY = 145, R = 105;
+
+function getPoints(vals, radius) {
+  return vals.map((v, i) => {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    return [CX + radius * v * Math.cos(angle), CY + radius * v * Math.sin(angle)];
+  });
+}
+
+function drawChart() {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = 300 * dpr;
+  canvas.height = 280 * dpr;
+  ctx.scale(dpr, dpr);
+
+  ctx.clearRect(0, 0, 300, 280);
+
+  const levels = 5;
+
+  // Grid rings
+  for (let l = 1; l <= levels; l++) {
+    const pts = getPoints([1,1,1,1,1], R * (l / levels));
+    ctx.beginPath();
+    pts.forEach(([x,y], i) => i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+    ctx.closePath();
+    ctx.strokeStyle = l === levels ? "rgba(139,105,20,0.35)" : "rgba(139,105,20,0.12)";
+    ctx.lineWidth = l === levels ? 1 : 0.8;
+    ctx.stroke();
+
+    if (l === levels || l === 3) {
+      ctx.fillStyle = "rgba(139,105,20,0.25)";
+      ctx.font = "9px 'Shippori Mincho', serif";
+      ctx.textAlign = "center";
+      ctx.fillText(l, CX + 4, CY - R * (l/levels) + 3);
+    }
+  }
+
+  // Axes
+  ITEMS.forEach((_, i) => {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.lineTo(CX + R * Math.cos(angle), CY + R * Math.sin(angle));
+    ctx.strokeStyle = "rgba(139,105,20,0.18)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Labels
+  const labelR = R + 20;
+  ITEMS.forEach((item, i) => {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    const x = CX + labelR * Math.cos(angle);
+    const y = CY + labelR * Math.sin(angle);
+
+    ctx.fillStyle = "#1a1410";
+    ctx.font = "bold 10px 'Zen Kaku Gothic New', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Two-line if long
+    const short = item.label.replace("の言語化","").replace("の明確化","").replace("の構造化","").replace("の把握","");
+    const lines = item.label.split("の");
+    if (lines.length > 1 && item.label.length > 5) {
+      ctx.fillText(lines[0] + "の", x, y - 6);
+      ctx.fillText(lines[1], x, y + 6);
+    } else {
+      ctx.fillText(item.label, x, y);
+    }
+  });
+
+  // Data polygon
+  const vals = ITEMS.map(item => (scores[item.key] || 0) / 5);
+  if (vals.some(v => v > 0)) {
+    const pts = getPoints(vals, R);
+    ctx.beginPath();
+    pts.forEach(([x,y], i) => i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y));
+    ctx.closePath();
+    ctx.fillStyle = "rgba(192,57,43,0.18)";
+    ctx.fill();
+    ctx.strokeStyle = "#c0392b";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Data dots
+    pts.forEach(([x,y], i) => {
+      if (vals[i] > 0) {
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#c0392b";
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    });
+  }
+}
+
+function updateChart() { drawChart(); }
+
+function updateTotal() {
+  const total = Object.values(scores).reduce((a,b) => a+b, 0);
+  document.getElementById("totalNum").textContent = total;
+  document.getElementById("resultFill").style.width = (total/25*100) + "%";
+  document.getElementById("verdict").textContent = getVerdict(total);
+}
+
+drawChart();
+</script>
+</body>
+</html>
