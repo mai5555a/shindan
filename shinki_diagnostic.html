@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本筋思考言語化力チェック診断シート</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Shippori+Mincho:wght@400;600;800&family=Zen+Kaku+Gothic+New:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --paper: #f5f0e8;
+    --sepia: #8b6914;
+    --accent: #c0392b;
+    --muted: #6b5b4b;
+    --light: #e8e0d0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 80px;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(139,105,20,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(192,57,43,0.04) 0%, transparent 60%);
+  }
+  .wrapper { max-width: 820px; margin: 0 auto; }
+
+  /* Header */
+  header { text-align:center; margin-bottom:48px; position:relative; padding:16px; }
+  .header-rule { width:100%; height:1px; background:linear-gradient(to right,transparent,var(--sepia),transparent); margin:12px 0; }
+  .header-top { font-family:'Shippori Mincho',serif; font-size:11px; letter-spacing:.35em; color:var(--sepia); }
+  h1 { font-family:'Shippori Mincho',serif; font-size:clamp(22px,5vw,30px); font-weight:800; letter-spacing:.12em; line-height:1.5; }
+  .subtitle { font-size:12px; letter-spacing:.2em; color:var(--muted); margin-top:4px; }
+  .corner-deco { position:absolute; width:18px; height:18px; border-color:var(--sepia); border-style:solid; opacity:.4; }
+  .corner-deco.tl{top:0;left:0;border-width:1px 0 0 1px}
+  .corner-deco.tr{top:0;right:0;border-width:1px 1px 0 0}
+  .corner-deco.bl{bottom:0;left:0;border-width:0 0 1px 1px}
+  .corner-deco.br{bottom:0;right:0;border-width:0 1px 1px 0}
+
+  /* Layout */
+  .layout { display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
+  @media(max-width:620px){ .layout{grid-template-columns:1fr;} }
+
+  /* Question Cards */
+  .questions { display:flex; flex-direction:column; gap:18px; }
+  .q-card {
+    background:white; border:1px solid var(--light); border-radius:2px;
+    padding:18px 20px; transition:border-color .25s, box-shadow .25s;
+    animation: fadeIn .45s ease both;
+  }
+  .q-card:hover{border-color:var(--sepia); box-shadow:0 2px 16px rgba(139,105,20,.08);}
+  .q-card:nth-child(1){animation-delay:.05s}
+  .q-card:nth-child(2){animation-delay:.12s}
+  .q-card:nth-child(3){animation-delay:.19s}
+  .q-card:nth-child(4){animation-delay:.26s}
+  .q-card:nth-child(5){animation-delay:.33s}
+  .q-num { font-family:'Shippori Mincho',serif; font-size:10px; letter-spacing:.3em; color:var(--sepia); margin-bottom:3px; }
+  .q-label { font-weight:700; font-size:15px; letter-spacing:.06em; margin-bottom:4px; }
+  .q-desc { font-size:11px; color:var(--muted); letter-spacing:.04em; margin-bottom:14px; line-height:1.7; }
+  .rating-row { display:flex; gap:8px; align-items:center; }
+  .rating-label { font-size:10px; color:var(--muted); white-space:nowrap; }
+  .stars { display:flex; gap:6px; flex:1; justify-content:center; }
+  .star-btn {
+    width:30px; height:30px; border-radius:50%; border:1.5px solid var(--light);
+    background:transparent; cursor:pointer; font-size:12px; transition:all .18s;
+    display:flex; align-items:center; justify-content:center; color:var(--muted);
+    font-family:'Shippori Mincho',serif; font-weight:600;
+  }
+  .star-btn:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.12);}
+  .star-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .score-display { font-family:'Shippori Mincho',serif; font-size:18px; font-weight:800; color:var(--accent); min-width:26px; text-align:right; }
+
+  /* Chart Panel */
+  .chart-panel { position:sticky; top:20px; }
+  .chart-box { background:white; border:1px solid var(--light); border-radius:2px; padding:22px; }
+  .chart-title { font-family:'Shippori Mincho',serif; font-size:11px; letter-spacing:.2em; color:var(--sepia); text-align:center; margin-bottom:6px; }
+  canvas { display:block; margin:0 auto; width:100% !important; max-width:280px; }
+  .total-score { text-align:center; margin-top:14px; padding-top:14px; border-top:1px solid var(--light); }
+  .total-label { font-size:10px; letter-spacing:.3em; color:var(--muted); }
+  .total-num { font-family:'Shippori Mincho',serif; font-size:40px; font-weight:800; color:var(--ink); line-height:1; margin:4px 0; }
+  .total-denom { font-size:12px; color:var(--muted); font-family:'Shippori Mincho',serif; }
+  .verdict { margin-top:10px; font-size:12px; color:var(--accent); font-weight:700; letter-spacing:.1em; min-height:16px; }
+  .result-bar { margin-top:8px; background:var(--light); border-radius:1px; height:4px; overflow:hidden; }
+  .result-fill { height:100%; background:var(--accent); transition:width .6s cubic-bezier(.23,1,.32,1); }
+
+  /* Section Divider */
+  .section-divider {
+    display:flex; align-items:center; gap:16px;
+    margin: 56px 0 36px;
+  }
+  .section-divider::before, .section-divider::after {
+    content:''; flex:1; height:1px;
+    background:linear-gradient(to right, transparent, var(--sepia));
+  }
+  .section-divider::after { background:linear-gradient(to left, transparent, var(--sepia)); }
+  .section-divider span {
+    font-family:'Shippori Mincho',serif; font-size:11px; letter-spacing:.3em;
+    color:var(--sepia); white-space:nowrap;
+  }
+
+  /* Results */
+  .results-intro {
+    background:white; border:1px solid var(--light); border-radius:2px;
+    padding:28px 32px; margin-bottom:28px; text-align:center;
+  }
+  .results-intro-title {
+    font-family:'Shippori Mincho',serif; font-size:17px; font-weight:800;
+    letter-spacing:.1em; margin-bottom:12px;
+  }
+  .results-intro-body { font-size:13px; line-height:2; color:var(--muted); letter-spacing:.05em; }
+
+  .result-cards { display:flex; flex-direction:column; gap:20px; }
+  .result-card { background:white; border:1px solid var(--light); border-radius:2px; overflow:hidden; }
+  .result-card-header {
+    padding:14px 22px; background:var(--ink); color:var(--paper);
+    display:flex; align-items:center; gap:12px;
+  }
+  .result-card-num { font-family:'Shippori Mincho',serif; font-size:11px; letter-spacing:.3em; opacity:.45; }
+  .result-card-title { font-family:'Shippori Mincho',serif; font-size:15px; font-weight:800; letter-spacing:.1em; }
+  .result-card-score-badge {
+    margin-left:auto; background:var(--accent); color:white;
+    font-family:'Shippori Mincho',serif; font-size:13px; font-weight:800;
+    padding:3px 10px; border-radius:1px; min-width:42px; text-align:center;
+    transition:opacity .3s;
+  }
+  .result-card-score-badge.empty { background:rgba(255,255,255,.15); }
+
+  .score-row {
+    display:flex; align-items:flex-start; gap:14px;
+    padding:13px 22px; border-bottom:1px solid var(--light);
+    transition:background .2s;
+  }
+  .score-row:last-child { border-bottom:none; }
+  .score-row.highlighted { background:#fff6f6; }
+  .score-pip {
+    flex-shrink:0; width:28px; height:28px; border-radius:50%;
+    border:1.5px solid var(--light); display:flex; align-items:center;
+    justify-content:center; font-family:'Shippori Mincho',serif;
+    font-size:12px; font-weight:800; color:var(--muted); transition:all .25s;
+  }
+  .score-row.highlighted .score-pip { background:var(--accent); border-color:var(--accent); color:white; }
+  .score-text { font-size:13px; line-height:1.85; color:var(--muted); letter-spacing:.04em; padding-top:4px; transition:color .25s; }
+  .score-row.highlighted .score-text { color:var(--ink); font-weight:700; }
+
+  /* Usage Section */
+  .usage-section {
+    margin-top:56px; background:var(--ink); color:var(--paper);
+    border-radius:2px; padding:40px 36px; position:relative; overflow:hidden;
+  }
+  .usage-section::before {
+    content:''; position:absolute; top:-60px; right:-60px;
+    width:220px; height:220px; border-radius:50%; background:rgba(192,57,43,.07);
+  }
+  .usage-section::after {
+    content:''; position:absolute; bottom:-40px; left:-40px;
+    width:160px; height:160px; border-radius:50%; background:rgba(139,105,20,.06);
+  }
+  .usage-label { font-family:'Shippori Mincho',serif; font-size:11px; letter-spacing:.35em; color:rgba(245,240,232,.38); margin-bottom:10px; }
+  .usage-title { font-family:'Shippori Mincho',serif; font-size:clamp(18px,3vw,23px); font-weight:800; letter-spacing:.12em; margin-bottom:18px; line-height:1.5; }
+  .usage-rule { width:40px; height:2px; background:var(--accent); margin-bottom:20px; }
+  .usage-body { font-size:13px; line-height:2.2; color:rgba(245,240,232,.75); letter-spacing:.05em; margin-bottom:26px; }
+  .usage-points { display:flex; flex-direction:column; gap:14px; margin-bottom:30px; }
+  .usage-point { display:flex; gap:14px; align-items:flex-start; }
+  .usage-point-num { flex-shrink:0; font-family:'Shippori Mincho',serif; font-size:11px; color:var(--accent); letter-spacing:.1em; padding-top:3px; }
+  .usage-point-text { font-size:13px; line-height:1.9; color:rgba(245,240,232,.78); letter-spacing:.04em; }
+  .usage-point-text strong { color:var(--paper); }
+
+  .course-callout {
+    border:1px solid rgba(192,57,43,.5); border-radius:2px;
+    padding:22px 26px; position:relative; z-index:1;
+    background:rgba(192,57,43,.08);
+  }
+  .course-callout-label { font-size:10px; letter-spacing:.3em; color:var(--accent); margin-bottom:8px; }
+  .course-callout-text {
+    font-family:'Shippori Mincho',serif; font-size:16px; font-weight:800;
+    letter-spacing:.08em; color:var(--paper); line-height:1.8;
+  }
+  .course-callout-sub { font-size:12px; color:rgba(245,240,232,.58); margin-top:8px; line-height:1.9; letter-spacing:.04em; }
+
+  @keyframes fadeIn {
+    from{opacity:0;transform:translateY(8px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  footer { text-align:center; margin-top:56px; font-size:10px; letter-spacing:.2em; color:var(--muted); opacity:.5; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="corner-deco tl"></div><div class="corner-deco tr"></div>
+    <div class="corner-deco bl"></div><div class="corner-deco br"></div>
+    <div class="header-top">Self Assessment Sheet</div>
+    <div class="header-rule"></div>
+    <h1>本筋思考言語化力<br>チェック診断シート</h1>
+    <div class="subtitle">各項目を１〜５で評価してください</div>
+    <div class="header-rule"></div>
+  </header>
+
+  <div class="layout">
+    <div class="questions" id="questions"></div>
+    <div class="chart-panel">
+      <div class="chart-box">
+        <div class="chart-title">DIAGNOSIS CHART</div>
+        <canvas id="radarChart" width="280" height="260"></canvas>
+        <div class="total-score">
+          <div class="total-label">TOTAL SCORE</div>
+          <div class="total-num" id="totalNum">0</div>
+          <div class="total-denom">/ 25</div>
+          <div class="result-bar"><div class="result-fill" id="resultFill" style="width:0%"></div></div>
+          <div class="verdict" id="verdict"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"><span>SCORE ANALYSIS</span></div>
+
+  <div class="results-intro">
+    <div class="results-intro-title">【スコア別】今のあなたの状態・一言解説</div>
+    <div class="results-intro-body">
+      本筋思考言語化力チェック診断おつかれさまでした。いかがでしたか？<br>
+      それぞれの項目について、スコア別に解説をまとめましたので参考にしていただければ幸いです。
+    </div>
+  </div>
+
+  <div class="result-cards" id="resultCards"></div>
+
+  <div class="section-divider"><span>HOW TO USE YOUR RESULTS</span></div>
+
+  <div class="usage-section">
+    <div class="usage-label">NEXT STEP</div>
+    <div class="usage-title">この診断結果の活かし方</div>
+    <div class="usage-rule"></div>
+    <div class="usage-body">
+      診断結果は、あなたの「今地点」を示す羅針盤です。<br>
+      スコアの高低に一喜一憂するのではなく、どの項目に伸びしろがあるかを<br>
+      冷静に見つめることが大切です。
+    </div>
+    <div class="usage-points">
+      <div class="usage-point">
+        <div class="usage-point-num">01 —</div>
+        <div class="usage-point-text"><strong>スコアが低い項目</strong>を「弱点」ではなく「最も成長できる領域」と捉えましょう。まずその一項目だけに集中することで、思考と言語の質が劇的に変わります。</div>
+      </div>
+      <div class="usage-point">
+        <div class="usage-point-num">02 —</div>
+        <div class="usage-point-text"><strong>スコアが高い項目</strong>はすでに体に染みついた強みです。その強みを軸に他の項目へ応用・展開することで、全体のレベルアップが加速します。</div>
+      </div>
+      <div class="usage-point">
+        <div class="usage-point-num">03 —</div>
+        <div class="usage-point-text"><strong>定期的に再診断</strong>することをおすすめします。1〜3ヶ月後に同じシートで採点し、変化を可視化することで成長の実感が得られます。</div>
+      </div>
+      <div class="usage-point">
+        <div class="usage-point-num">04 —</div>
+        <div class="usage-point-text"><strong>チャートの形</strong>に注目してください。バランスよく高得点な人と特定項目だけ突出した人では、アプローチすべき課題が異なります。</div>
+      </div>
+    </div>
+    <div class="course-callout">
+      <div class="course-callout-label">COURSE INFORMATION</div>
+      <div class="course-callout-text">本筋思考言語化力をさらに深く磨く方法は、<br>講座で提供しています。</div>
+      <div class="course-callout-sub">
+        診断結果をもとに、あなただけの言語化トレーニングをご用意しています。<br>
+        ぜひ講座でお会いしましょう。
+      </div>
+    </div>
+  </div>
+
+  <footer>本筋思考言語化力チェック診断シート &nbsp;·&nbsp; 5 Categories &nbsp;·&nbsp; 25pt Max</footer>
+</div>
+
+<script>
+const ITEMS = [
+  {
+    key:"value", label:"価値観の言語化",
+    desc:"自分が大切にしていることを、人に伝わる言葉で的確に表現できる",
+    explanations:{
+      5:"自分の信念が明確で、あらゆる決断に迷いがない「自分軸の達人」",
+      4:"大切なことは分かっており、自分らしい選択ができている状態",
+      3:"価値観は持っているが、時折「世間の正解」と混ざり合うことがある",
+      2:"自分の本音を言葉にするのが苦手で、つい周囲に合わせてしまう",
+      1:"自分が何をしたいのか、何を大切にしたいのかを見失っている状態"
+    }
+  },
+  {
+    key:"action", label:"行動の一貫性",
+    desc:"思考・発言・行動が一致しており、ブレなく実践に落とし込める",
+    explanations:{
+      5:"言葉と行動が完全に一致し、圧倒的な信頼を集める「言行一致の体現者」",
+      4:"掲げた目標に対して、概ね誠実に行動できている状態",
+      3:"言いたいことはあるが、行動が追いつかない時があり、少し自信を欠いている",
+      2:"その場のノリで発言してしまい、あとで「やっていない自分」に自己嫌悪する",
+      1:"言っていることとやっていることがバラバラで、信頼を失いかけている状態"
+    }
+  },
+  {
+    key:"purpose", label:"目的の明確化",
+    desc:"「なぜやるのか」を深掘りし、本質的な目的を言葉にできる",
+    explanations:{
+      5:"常に「何のために？」を問い続け、最短距離で成果を出す「本質ランナー」",
+      4:"ゴールを意識して動けており、無駄な寄り道が少ない状態",
+      3:"目的は理解しているが、途中で「やり方（手段）」に気を取られやすい",
+      2:"目の前の作業をこなすことで精一杯になり、本来の目的を忘れがち",
+      1:"なぜそれをやっているのか分からず、ただ「忙しさ」に流されている状態"
+    }
+  },
+  {
+    key:"structure", label:"思考の構造化",
+    desc:"複雑な考えを整理し、筋道の通った形で言語化・説明できる",
+    explanations:{
+      5:"どんな複雑な話も一瞬で整理し、誰にでも分かる形に直せる「思考の翻訳家」",
+      4:"要点をまとめて話すことができ、相手にスムーズに伝わる状態",
+      3:"頭の中では整理できているが、いざ言葉にすると少し散らかってしまう",
+      2:"話しながら自分の考えを整理しているため、結論にたどり着くのが遅い",
+      1:"頭の中がカオス状態で、自分でも何を伝えたいのか分からなくなっている"
+    }
+  },
+  {
+    key:"essence", label:"本質の把握",
+    desc:"物事の表面ではなく、核心・本質を見抜いて言葉にする力",
+    explanations:{
+      5:"膨大な情報から「核心の一点」を射抜き、世界をシンプルに変える「洞察のプロ」",
+      4:"問題の根っこを捉える力があり、的確な判断ができる状態",
+      3:"表面的な事象には気づけるが、その奥にある「本当の原因」まではあと一歩",
+      2:"目に見えるトラブルへの対症療法に追われ、根本的な解決に至らない",
+      1:"枝葉末節な情報に振り回され、何が重要なのか判断がつかない状態"
+    }
+  }
+];
+
+const scores = {};
+ITEMS.forEach(it => scores[it.key] = 0);
+
+// Build question cards
+const qContainer = document.getElementById("questions");
+ITEMS.forEach((item, i) => {
+  const card = document.createElement("div");
+  card.className = "q-card";
+  card.innerHTML = `
+    <div class="q-num">0${i+1} / 05</div>
+    <div class="q-label">${item.label}</div>
+    <div class="q-desc">${item.desc}</div>
+    <div class="rating-row">
+      <span class="rating-label">低</span>
+      <div class="stars">
+        ${[1,2,3,4,5].map(n=>`<button class="star-btn" data-key="${item.key}" data-val="${n}">${n}</button>`).join('')}
+      </div>
+      <span class="rating-label">高</span>
+      <div class="score-display" id="score-${item.key}">—</div>
+    </div>
+  `;
+  qContainer.appendChild(card);
+});
+
+// Build result cards
+const rcContainer = document.getElementById("resultCards");
+ITEMS.forEach((item, i) => {
+  const card = document.createElement("div");
+  card.className = "result-card";
+  const rows = [5,4,3,2,1].map(n => `
+    <div class="score-row" id="row-${item.key}-${n}">
+      <div class="score-pip">${n}</div>
+      <div class="score-text">${item.explanations[n]}</div>
+    </div>
+  `).join('');
+  card.innerHTML = `
+    <div class="result-card-header">
+      <span class="result-card-num">0${i+1}</span>
+      <span class="result-card-title">${item.label}</span>
+      <span class="result-card-score-badge empty" id="badge-${item.key}">—</span>
+    </div>
+    <div>${rows}</div>
+  `;
+  rcContainer.appendChild(card);
+});
+
+// Interaction
+document.querySelectorAll(".star-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.key;
+    const val = parseInt(btn.dataset.val);
+    scores[key] = val;
+    document.querySelectorAll(`[data-key="${key}"]`).forEach(b => {
+      b.classList.toggle("active", parseInt(b.dataset.val) <= val);
+    });
+    document.getElementById(`score-${key}`).textContent = val;
+    // Update badge
+    const badge = document.getElementById(`badge-${key}`);
+    badge.textContent = val; badge.classList.remove("empty");
+    // Highlight row
+    [1,2,3,4,5].forEach(n => {
+      document.getElementById(`row-${key}-${n}`).classList.toggle("highlighted", n===val);
+    });
+    drawChart();
+    updateTotal();
+  });
+});
+
+function getVerdict(t) {
+  if (!t) return "";
+  if (t<=8)  return "基礎を築く段階";
+  if (t<=13) return "認識が芽生えている";
+  if (t<=18) return "思考が言葉に宿りつつある";
+  if (t<=22) return "本筋思考が体に染みている";
+  return "言語化の達人";
+}
+
+function updateTotal() {
+  const total = Object.values(scores).reduce((a,b)=>a+b,0);
+  document.getElementById("totalNum").textContent = total;
+  document.getElementById("resultFill").style.width = (total/25*100)+"%";
+  document.getElementById("verdict").textContent = getVerdict(total);
+}
+
+// Radar chart
+const canvas = document.getElementById("radarChart");
+const ctx = canvas.getContext("2d");
+const N=5, CX=140, CY=132, R=95;
+
+function pts(vals, r) {
+  return vals.map((v,i)=>{
+    const a=(i/N)*Math.PI*2-Math.PI/2;
+    return [CX+r*v*Math.cos(a), CY+r*v*Math.sin(a)];
+  });
+}
+
+function drawChart() {
+  const dpr = window.devicePixelRatio||1;
+  canvas.width=280*dpr; canvas.height=260*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,280,260);
+
+  for(let l=1;l<=5;l++){
+    const p=pts([1,1,1,1,1],R*(l/5));
+    ctx.beginPath(); p.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y)); ctx.closePath();
+    ctx.strokeStyle=l===5?"rgba(139,105,20,.35)":"rgba(139,105,20,.12)";
+    ctx.lineWidth=l===5?1:.8; ctx.stroke();
+    if(l===1||l===3||l===5){
+      ctx.fillStyle="rgba(139,105,20,.3)"; ctx.font="8px 'Shippori Mincho',serif";
+      ctx.textAlign="center"; ctx.fillText(l,CX+4,CY-R*(l/5)+3);
+    }
+  }
+  ITEMS.forEach((_,i)=>{
+    const a=(i/N)*Math.PI*2-Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(CX,CY); ctx.lineTo(CX+R*Math.cos(a),CY+R*Math.sin(a));
+    ctx.strokeStyle="rgba(139,105,20,.18)"; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  const labelR=R+18;
+  ITEMS.forEach((item,i)=>{
+    const a=(i/N)*Math.PI*2-Math.PI/2;
+    const x=CX+labelR*Math.cos(a), y=CY+labelR*Math.sin(a);
+    ctx.fillStyle="#1a1410"; ctx.font="bold 9px 'Zen Kaku Gothic New',sans-serif";
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    const parts=item.label.split("の");
+    if(parts.length>1){ctx.fillText(parts[0]+"の",x,y-6);ctx.fillText(parts[1],x,y+6);}
+    else ctx.fillText(item.label,x,y);
+  });
+
+  const vals=ITEMS.map(it=>(scores[it.key]||0)/5);
+  if(vals.some(v=>v>0)){
+    const p=pts(vals,R);
+    ctx.beginPath(); p.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y)); ctx.closePath();
+    ctx.fillStyle="rgba(192,57,43,.18)"; ctx.fill();
+    ctx.strokeStyle="#c0392b"; ctx.lineWidth=2; ctx.stroke();
+    p.forEach(([x,y],i)=>{
+      if(vals[i]>0){
+        ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+        ctx.fillStyle="#c0392b"; ctx.fill();
+        ctx.strokeStyle="white"; ctx.lineWidth=1.5; ctx.stroke();
+      }
+    });
+  }
+}
+drawChart();
+</script>
+</body>
+</html>
